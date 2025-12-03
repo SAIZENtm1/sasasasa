@@ -1,66 +1,125 @@
-import React, { useState } from 'react';
-import { BookOpen, Layout, Brain, Monitor, Menu, X, Download, ChevronRight, Home, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {
+  BookOpen, Layout, Brain, Monitor, Menu, X, Download,
+  ChevronRight, Home, CheckCircle, Sparkles, ArrowRight, Star
+} from 'lucide-react';
 
 const App = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   const navigateTo = (section) => {
-    setActiveSection(section);
-    setIsMobileMenuOpen(false);
-    window.scrollTo(0, 0);
+    setIsVisible(false);
+    setTimeout(() => {
+      setActiveSection(section);
+      setIsMobileMenuOpen(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setIsVisible(true);
+    }, 300);
   };
 
+  const navItems = [
+    { id: 'home', label: 'Home', icon: Home },
+    { id: 'foundations', label: 'Foundations', icon: Layout },
+    { id: 'udl', label: 'UDL Framework', icon: BookOpen },
+    { id: 'bloom', label: "Bloom's Taxonomy", icon: Brain },
+    { id: 'digital', label: 'Digital Pedagogy', icon: Monitor },
+  ];
+
+  // --- Premium Components ---
+
   const DownloadButton = ({ fileName, label }) => (
-    <button 
-      onClick={() => alert(`Downloading ${fileName}... (This is a demo action)`)}
-      className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm my-4"
+    <button onClick={() => alert(`Downloading ${fileName}...`)}
+      className="group flex items-center gap-3 bg-indigo-600 text-white px-6 py-3.5 rounded-xl hover:bg-indigo-700 transition-all
+    duration-300 font-medium text-sm tracking-wide shadow-lg shadow-indigo-200 hover:shadow-indigo-300 hover:-translate-y-0.5"
     >
-      <Download size={18} />
+      <Download size={18} className="group-hover:animate-bounce" />
       <span>{label}</span>
     </button>
   );
 
-  const SectionHeader = ({ title, subtitle, icon: Icon }) => (
-    <div className="mb-8 border-b pb-6 border-gray-200">
-      <div className="flex items-center gap-3 text-blue-600 mb-2">
-        {Icon && <Icon size={32} />}
-        <span className="uppercase tracking-wide text-sm font-bold">Module</span>
-      </div>
-      <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{title}</h1>
-      {subtitle && <p className="text-xl text-gray-600">{subtitle}</p>}
-    </div>
-  );
-  const Figure = ({ src, alt, label, caption }) => (
-    <div className="my-8 bg-gray-50 rounded-xl p-4 border border-gray-100 shadow-sm">
-      <div className="overflow-hidden rounded-lg">
-        <img 
-          src={src} 
-          alt={alt} 
-          className="w-full h-auto max-h-[500px] object-contain mx-auto hover:scale-[1.02] transition-transform duration-300"
-          onError={(e) => {
-            e.target.onerror = null; 
-            e.target.style.display = 'none';
-            e.target.nextSibling.style.display = 'flex';
-          }}
-        />
-        <div className="hidden w-full h-64 bg-gray-200 items-center justify-center text-gray-500">
-           Image not found: {src}
+  const SectionHero = ({ title, subtitle, icon: Icon }) => (
+    <div className="mb-16 relative">
+      <div className="absolute -left-8 top-0 w-1 h-24 bg-gradient-to-b from-indigo-500 to-transparent rounded-full opacity-50 hidden md:block"></div>
+      <div className="flex flex-col gap-6">
+        <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-100">
+          {Icon &&
+            <Icon size={28} strokeWidth={1.5} />}
         </div>
-      </div>
-      <div className="mt-3 text-center">
-        <span className="font-bold text-gray-800 block">{label}</span>
-        {caption && <span className="text-gray-600 text-sm italic">{caption}</span>}
+        <div>
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight leading-tight">
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="text-xl text-slate-500 font-light max-w-3xl leading-relaxed">
+              {subtitle}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
 
-  const ContentBlock = ({ title, children }) => (
-    <div className="mb-8">
-      {title && <h2 className="text-2xl font-bold text-gray-800 mb-4">{title}</h2>}
-      <div className="text-gray-700 leading-relaxed space-y-4">
+  const Figure = ({ src, alt, label, caption }) => {
+    const [hasError, setHasError] = useState(false);
+
+    return (
+      <div className="my-16 group">
+        <div className="bg-white rounded-2xl p-3 border border-slate-100 shadow-xl shadow-slate-200/50 transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200/60">
+          <div className="bg-slate-50 rounded-xl overflow-hidden relative min-h-[300px] flex items-center justify-center border border-slate-100/50">
+            {!hasError ? (
+              <img
+                src={src}
+                alt={alt}
+                className="w-full h-auto object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-[1.02]"
+                onError={() => setHasError(true)}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center text-slate-400 py-20">
+                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                  <Monitor size={32} className="opacity-40" />
+                </div>
+                <span className="text-sm font-medium">Image not available</span>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="mt-6 flex gap-4 text-sm px-2">
+          <span className="font-bold text-indigo-900 shrink-0 tracking-wide">{label}</span>
+          {caption && <span className="text-slate-500 border-l-2 border-slate-200 pl-4 italic">{caption}</span>}
+        </div>
+      </div>
+    );
+  };
+
+  const ContentCard = ({ title, children, className = "" }) => (
+    <div className={`mb-12 ${className}`}>
+      {title && (
+        <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3 tracking-tight">
+          <div className="w-8 h-1 bg-indigo-500 rounded-full"></div>
+          {title}
+        </h2>
+      )}
+      <div className="text-slate-600 text-lg leading-loose space-y-6 font-light">
         {children}
       </div>
+    </div>
+  );
+
+  const FeatureCard = ({ title, desc, icon: Icon }) => (
+    <div
+      className="group h-full p-8 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl hover:shadow-indigo-100/50 hover:border-indigo-100 transition-all duration-300 hover:-translate-y-1">
+      <div className="mb-6 text-slate-400 group-hover:text-indigo-600 transition-colors bg-slate-50 w-12 h-12 rounded-xl flex items-center justify-center group-hover:bg-indigo-50">
+        {Icon &&
+          <Icon size={24} strokeWidth={1.5} />}
+      </div>
+      <h3 className="font-bold text-lg text-slate-900 mb-3">{title}</h3>
+      <p className="text-slate-500 leading-relaxed font-light">{desc}</p>
     </div>
   );
 
@@ -68,40 +127,54 @@ const App = () => {
     switch (activeSection) {
       case 'home':
         return (
-          <div className="max-w-4xl mx-auto text-center py-12">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Designing Effective Lessons
-            </h1>
-            <p className="text-2xl text-blue-600 font-light mb-8">
-              A Multimedia Guide for Educators
-            </p>
-            <div className="bg-blue-50 p-8 rounded-2xl shadow-sm mb-12 text-left max-w-2xl mx-auto border-l-4 border-blue-500">
-              <p className="text-lg text-gray-800">
-                This interactive guide introduces four essential frameworks for lesson planning. Each section includes examples, visuals, templates, and teacher-friendly explanations based on multimedia learning principles.
+          <div className="max-w-5xl mx-auto py-8 md:py-12">
+            <div className="mb-24 relative">
+              <div className="absolute -top-20 -right-20 w-96 h-96 bg-indigo-50 rounded-full blur-3xl opacity-50 -z-10"></div>
+              <span className="inline-block px-4 py-1.5 rounded-full bg-indigo-50 text-indigo-600 text-xs font-bold tracking-widest uppercase mb-6 border border-indigo-100">
+                Educator Guide 2.0
+              </span>
+              <h1 className="text-6xl md:text-8xl font-bold text-slate-900 mb-8 tracking-tighter leading-none">
+                Designing<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">Effective Lessons</span>
+              </h1>
+              <p
+                className="text-2xl text-slate-500 font-light max-w-2xl leading-relaxed mb-12 border-l-4 border-indigo-500 pl-8">
+                A clean, multimedia resource integrating Lesson Foundations, UDL, Bloom’s Taxonomy, and Digital Pedagogy.
               </p>
+
+              <button onClick={() => navigateTo('foundations')}
+                className="group flex items-center gap-4 text-lg font-semibold text-white bg-slate-900 px-8 py-4 rounded-full hover:bg-slate-800 hover:shadow-xl hover:shadow-slate-200 transition-all duration-300"
+              >
+                Start Reading
+                <div className="bg-white/20 rounded-full p-1 group-hover:translate-x-1 transition-transform">
+                  <ArrowRight size={20} />
+                </div>
+              </button>
             </div>
-            
-            <div className="grid md:grid-cols-2 gap-6 text-left">
+
+            <div className="grid md:grid-cols-2 gap-6 md:gap-8">
               {[
-                { id: 'foundations', title: 'Foundations of Lesson Planning', icon: Layout, desc: 'Objectives, activities, and assessment cycles.' },
-                { id: 'udl', title: 'Universal Design for Learning', icon: Layout, desc: 'Engagement, Representation, and Action.' }, // Using Layout icon temporarily if Accessibility icon not available or for consistency
-                { id: 'bloom', title: "Bloom's Taxonomy", icon: Brain, desc: 'Hierarchical levels of thinking skills.' },
-                { id: 'digital', title: 'Digital Pedagogy', icon: Monitor, desc: 'Integrating technology meaningfully.' }
+                { id: 'foundations', title: 'Foundations', icon: Layout, desc: 'Master the cycle of objectives, activities, and assessment.' },
+                { id: 'udl', title: 'UDL Framework', icon: BookOpen, desc: 'Design inclusive learning experiences for every student.' },
+                { id: 'bloom', title: "Bloom's Taxonomy", icon: Brain, desc: 'Elevate thinking from remembering to creating.' },
+                { id: 'digital', title: 'Digital Pedagogy', icon: Monitor, desc: 'Integrate technology with purpose and strategy.' }
               ].map((item) => (
-                <button 
-                  key={item.id}
-                  onClick={() => navigateTo(item.id)}
-                  className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all border border-gray-100 group"
+                <div key={item.id} onClick={() => navigateTo(item.id)}
+                  className="cursor-pointer group relative overflow-hidden bg-white border border-slate-100 p-8 rounded-3xl hover:border-indigo-100 hover:shadow-2xl hover:shadow-indigo-100/40 transition-all duration-300 hover:-translate-y-1"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="p-3 bg-blue-100 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                      <item.icon size={24} />
-                    </div>
-                    <ChevronRight className="text-gray-300 group-hover:text-blue-500" />
+                  <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
+                    <item.icon size={120} />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
-                  <p className="text-gray-600">{item.desc}</p>
-                </button>
+                  <div className="flex justify-between items-start mb-6 relative z-10">
+                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+                      <item.icon size={24} strokeWidth={1.5} />
+                    </div>
+                    <div className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-300 group-hover:border-indigo-200 group-hover:text-indigo-600 transition-colors">
+                      <ChevronRight size={16} />
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-3 relative z-10 group-hover:text-indigo-900 transition-colors">{item.title}</h3>
+                  <p className="text-slate-500 font-light relative z-10">{item.desc}</p>
+                </div>
               ))}
             </div>
           </div>
@@ -110,65 +183,60 @@ const App = () => {
       case 'foundations':
         return (
           <div className="max-w-4xl mx-auto animate-fadeIn">
-            <SectionHeader 
-              title="Foundations of Effective Lesson Planning" 
-              subtitle="The integrated cycle of objectives, activities, and assessment."
-              icon={Layout}
-            />
-            
-            <ContentBlock>
-              <p>
-                A lesson plan serves as a structured road map that outlines what students should learn and how instruction will unfold during class time. Effective planning begins with identifying clear learning objectives, followed by selecting purposeful teaching and learning activities, and finally determining how student understanding will be assessed.
+            <SectionHero title="Foundations" subtitle="The integrated cycle of objectives, activities, and assessment."
+              icon={Layout} />
+
+            <ContentCard>
+              <p className="text-xl text-slate-800 font-normal leading-relaxed">
+                Effective planning is an integrated cycle where <span className="bg-indigo-50 text-indigo-900 px-2 py-0.5 rounded font-medium border-b-2 border-indigo-200">objectives
+                  guide activities</span>, and <span className="bg-indigo-50 text-indigo-900 px-2 py-0.5 rounded font-medium border-b-2 border-indigo-200">activities guide
+                    assessment</span>.
               </p>
-              <div className="bg-yellow-50 p-6 rounded-lg my-6 border-l-4 border-yellow-400">
-                <h3 className="font-bold text-lg mb-2">Three Core Elements</h3>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Objectives for student learning</li>
-                  <li>Teaching and learning activities</li>
-                  <li>Strategies to check understanding</li>
-                </ul>
-              </div>
-            </ContentBlock>
+            </ContentCard>
 
-            <Figure 
-              src="image_1d1efc.jpg" 
-              alt="Cycle of Lesson Planning" 
-              label="Figure 1: The Integrated Cycle of Lesson Planning"
-              caption="Objectives guide activities, and activities guide assessment."
-            />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-16">
+              {['Objectives', 'Activities', 'Assessment'].map((el, i) => (
+                <div key={i} className="bg-white p-8 rounded-2xl text-center border border-slate-100 shadow-lg shadow-slate-100/50 hover:shadow-xl hover:shadow-indigo-100/40 transition-all duration-300">
+                  <span className="block text-5xl font-bold text-slate-100 mb-4 font-mono">0{i + 1}</span>
+                  <span className="font-bold text-lg text-slate-900 tracking-tight">{el}</span>
+                </div>
+              ))}
+            </div>
 
-            <ContentBlock title="Steps for Preparing a Lesson Plan">
-              <div className="space-y-8">
-                {[
-                  { title: "1. Outline learning objectives", text: "Begin by clarifying what you want students to know and be able to do. Rank objectives by importance to manage time effectively.", questions: ["What is the topic?", "What do I want students to learn?", "What must be covered even if time is short?"] },
-                  { title: "2. Develop the introduction", text: "Plan an engaging introduction to spark interest (real-world examples, polls, dilemmas) and gauge prior knowledge.", questions: ["How will I check prior knowledge?", "What misconceptions might they have?"] },
-                  { title: "3. Plan learning activities", text: "Prepare multiple ways of explaining key ideas (visuals, analogies) and build in interaction.", questions: ["How will I explain the topic?", "How can I engage students actively?"] },
-                  { title: "4. Check for understanding", text: "Develop questions and tasks that reveal whether students are meeting objectives.", questions: ["What tasks demonstrate progress?", "Which activity aligns with each objective?"] },
-                  { title: "5. Conclusion and preview", text: "Summarize main points and connect to the next topic.", questions: [] },
-                  { title: "6. Create a realistic timeline", text: "Estimate durations, leave buffer time, and prepare backup activities.", questions: [] }
-                ].map((step, idx) => (
-                  <div key={idx} className="border-l-2 border-blue-200 pl-6 py-2">
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">{step.title}</h3>
-                    <p className="mb-4">{step.text}</p>
-                    {step.questions.length > 0 && (
-                      <div className="bg-gray-50 p-4 rounded text-sm text-gray-600">
-                        <strong className="block text-gray-900 mb-1">Guiding Questions:</strong>
-                        <ul className="list-disc pl-4 space-y-1">
-                          {step.questions.map((q, i) => <li key={i}>{q}</li>)}
-                        </ul>
-                      </div>
-                    )}
+            <Figure src="image_1d1efc.jpg" alt="Cycle of Lesson Planning" label="Figure 1"
+              caption="The Integrated Cycle of Lesson Planning." />
+
+            <div className="space-y-8 my-20 relative">
+              <div className="absolute left-[19px] top-4 bottom-4 w-0.5 bg-slate-100"></div>
+              {[
+                { title: "1. Objectives", text: "Clarify what students should know. Rank by importance: Essential vs. Nice-to-know." },
+                { title: "2. Introduction", text: "Hook interest with real-world examples. Gauge prior knowledge immediately." },
+                { title: "3. Activities", text: "Use multiple formats (visuals, demos). Ensure active student participation." },
+                { title: "4. Check Understanding", text: "Align assessment tasks directly with your initial objectives." },
+                { title: "5. Conclusion", text: "Summarize key points and build a bridge to the next lesson." },
+                { title: "6. Timeline", text: "Always leave buffer time. Flexibility is the hallmark of expert teaching." }
+              ].map((item, idx) => (
+                <div key={idx} className="relative pl-16 group">
+                  <span className="absolute left-0 top-1 w-10 h-10 rounded-full bg-white border-4 border-slate-100 flex items-center justify-center text-xs font-bold text-slate-300 group-hover:border-indigo-100 group-hover:text-indigo-500 transition-colors z-10">
+                    {idx + 1}
+                  </span>
+                  <div className="bg-slate-50/50 p-6 rounded-2xl border border-transparent hover:border-slate-100 hover:bg-white hover:shadow-lg hover:shadow-slate-100/50 transition-all duration-300">
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">{item.title.split('. ')[1]}</h3>
+                    <p className="text-slate-600 font-light leading-relaxed">
+                      {item.text}
+                    </p>
                   </div>
-                ))}
-              </div>
-            </ContentBlock>
+                </div>
+              ))}
+            </div>
 
-            <div className="bg-blue-50 p-6 rounded-xl flex items-center justify-between flex-wrap gap-4">
+            <div
+              className="bg-slate-900 p-10 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl shadow-slate-200">
               <div>
-                <h3 className="font-bold text-lg text-blue-900">Ready to plan?</h3>
-                <p className="text-blue-700">Get the structured template to start your design.</p>
+                <h3 className="font-bold text-2xl text-white mb-2">Lesson Plan Template</h3>
+                <p className="text-slate-400">Professional DOCX Format</p>
               </div>
-              <DownloadButton fileName="Lesson Planning Overview.docx" label="Download Sample Lesson Plan" />
+              <DownloadButton fileName="Lesson Planning Overview.docx" label="Download Template" />
             </div>
           </div>
         );
@@ -176,86 +244,64 @@ const App = () => {
       case 'udl':
         return (
           <div className="max-w-4xl mx-auto animate-fadeIn">
-            <SectionHeader 
-              title="Universal Design for Learning (UDL)" 
-              subtitle="Ensuring all students have equal opportunities to learn."
-              icon={BookOpen}
-            />
+            <SectionHero title="Universal Design" subtitle="Designing for the margins benefits everyone." icon={BookOpen} />
 
-            <ContentBlock>
-              <p>
-                Universal Design for Learning (UDL) is an instructional framework that ensures all students have equal opportunities to learn. It encourages teachers to offer multiple pathways for students to access information, stay engaged, and demonstrate their understanding, rather than retrofitting accommodations later.
-              </p>
-            </ContentBlock>
+            <ContentCard>
+              <div className="bg-indigo-50/50 p-8 rounded-2xl border-l-4 border-indigo-500">
+                <p className="font-serif italic text-2xl text-indigo-900 leading-relaxed mb-6">
+                  "Universal Design for Learning is not about differentiating for a few; it's about designing for the
+                  variability of all."
+                </p>
+                <p className="text-indigo-700/80 font-medium">
+                  Just as curb cuts help people in wheelchairs and travelers with luggage, UDL strategies assist every learner
+                  by proactively removing barriers.
+                </p>
+              </div>
+            </ContentCard>
 
-            <Figure 
-              src="image_1d1f3d.png" 
-              alt="UDL Venn Diagram" 
-              label="Figure 2: The Three Core Principles of UDL"
-            />
+            <Figure src="image_1d1f3d.png" alt="UDL Venn Diagram" label="Figure 2"
+              caption="The Three Core Principles of UDL." />
 
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
-              {[
-                { title: "Representation", desc: "Present information in multiple formats (text, video, audio) to reach different learners.", color: "bg-green-100 text-green-800" },
-                { title: "Action & Expression", desc: "Give learners options to show what they know (writing, speaking, creating).", color: "bg-blue-100 text-blue-800" },
-                { title: "Engagement", desc: "Motivate students through relevant, varied, and autonomous activities.", color: "bg-orange-100 text-orange-800" }
-              ].map((card, i) => (
-                <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                  <div className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase mb-4 ${card.color}`}>
-                    Principle {i + 1}
-                  </div>
-                  <h3 className="font-bold text-lg mb-2">{card.title}</h3>
-                  <p className="text-gray-600 text-sm">{card.desc}</p>
-                </div>
-              ))}
+            <div className="grid md:grid-cols-3 gap-6 mb-20">
+              <FeatureCard title="Representation" desc="The 'WHAT'. Provide multiple means of acquiring info."
+                icon={Layout} />
+              <FeatureCard title="Action" desc="The 'HOW'. Allow students to demonstrate knowledge differently."
+                icon={Sparkles} />
+              <FeatureCard title="Engagement" desc="The 'WHY'. Tap into interests and offer challenges." icon={Star} />
             </div>
 
-            <ContentBlock title="Benefits of UDL">
-              <div className="grid md:grid-cols-2 gap-8">
-                <div>
-                  <h4 className="font-bold text-gray-900 mb-2 flex items-center gap-2"><CheckCircle size={16} className="text-green-500"/> For Educators</h4>
-                  <ul className="list-disc pl-8 space-y-2 text-gray-700">
-                    <li>More inclusive instruction and better outcomes.</li>
-                    <li>Reduces burden of individual accommodations.</li>
-                    <li>Increases engagement and satisfaction.</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-bold text-gray-900 mb-2 flex items-center gap-2"><CheckCircle size={16} className="text-blue-500"/> For Learners</h4>
-                  <ul className="list-disc pl-8 space-y-2 text-gray-700">
-                    <li>Focus on learning, not navigating barriers.</li>
-                    <li>Supports diversity and retention.</li>
-                    <li>Reduces stigma through universal flexibility.</li>
-                  </ul>
-                </div>
-              </div>
-            </ContentBlock>
-
-            <ContentBlock title="Practical Tips for Accessible Content">
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></span>
-                    <span>Use readable fonts and high-contrast colors.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></span>
-                    <span>Provide captions or transcripts for multimedia.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></span>
-                    <span>Keep language clear and predictable.</span>
-                  </li>
+            <ContentCard title="Quick Audit">
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-100/50 overflow-hidden">
+                <ul className="divide-y divide-slate-100">
+                  {[
+                    "Use high-contrast colors and readable fonts.",
+                    "Provide captions for all video content.",
+                    "Structure documents with clear headings.",
+                    "Offer alternatives for fine-motor activities."
+                  ].map((tip, i) => (
+                    <li key={i} className="flex items-center gap-6 p-6 hover:bg-slate-50 transition-colors">
+                      <span className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0">0{i + 1}</span>
+                      <span className="text-slate-700 font-medium">{tip}</span>
+                      <CheckCircle size={20} className="ml-auto text-emerald-500 opacity-0 group-hover:opacity-100" />
+                    </li>
+                  ))}
                 </ul>
               </div>
-            </ContentBlock>
+            </ContentCard>
 
-            <div className="bg-purple-50 p-6 rounded-xl flex items-center justify-between flex-wrap gap-4">
+            <div
+              className="bg-gradient-to-r from-indigo-600 to-violet-600 p-10 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl shadow-indigo-200">
               <div>
-                <h3 className="font-bold text-lg text-purple-900">Check your course</h3>
-                <p className="text-purple-700">Download the full UDL Guidelines Checklist.</p>
+                <h3 className="font-bold text-2xl text-white mb-2">UDL Checklist</h3>
+                <p className="text-indigo-100">Comprehensive PDF Guide</p>
               </div>
-              <DownloadButton fileName="UDL.pdf" label="Download UDL Checklist" />
+              <button onClick={() => alert(`Downloading UDL.pdf...`)}
+                className="flex items-center gap-3 bg-white text-indigo-600 px-8 py-4 rounded-xl hover:bg-indigo-50 transition-colors
+            duration-200 font-bold text-sm tracking-wide shadow-lg"
+              >
+                <Download size={18} />
+                <span>Download PDF</span>
+              </button>
             </div>
           </div>
         );
@@ -263,75 +309,71 @@ const App = () => {
       case 'bloom':
         return (
           <div className="max-w-4xl mx-auto animate-fadeIn">
-             <SectionHeader 
-              title="Bloom’s Taxonomy" 
-              subtitle="From foundational knowledge to higher-order reasoning."
-              icon={Brain}
-            />
+            <SectionHero title="Bloom’s Taxonomy" subtitle="A hierarchy of cognitive skills for deeper learning."
+              icon={Brain} />
 
-            <ContentBlock>
-              <p>
-                Bloom’s Taxonomy is a hierarchical framework used to classify learning objectives. It helps educators design lessons that progress from simple recall to complex creation. The updated version outlines six levels of thinking.
-              </p>
-            </ContentBlock>
-
-            <div className="flex flex-col md:flex-row gap-8 items-center">
-              <div className="w-full md:w-1/2">
-                <Figure 
-                  src="image_1d21e1.jpg" 
-                  alt="Bloom's Taxonomy Pyramid" 
-                  label="Figure 3: The Hierarchy of Cognitive Skills"
-                />
+            <div className="flex flex-col lg:flex-row gap-16 items-start mb-20">
+              <div className="w-full lg:w-1/2">
+                <Figure src="image_1d21e1.jpg" alt="Bloom's Taxonomy Pyramid" label="Figure 3"
+                  caption="Cognitive Hierarchy." />
               </div>
-              <div className="w-full md:w-1/2 space-y-4">
+
+              <div className="w-full lg:w-1/2 space-y-4">
                 {[
-                  { lvl: 6, name: "Creating", desc: "Produce new or original work (Design, assemble, construct)." },
-                  { lvl: 5, name: "Evaluating", desc: "Justify a stand or decision (Argue, defend, judge)." },
-                  { lvl: 4, name: "Analyzing", desc: "Draw connections among ideas (Differentiate, organize, compare)." },
-                  { lvl: 3, name: "Applying", desc: "Use information in new situations (Execute, solve, use)." },
-                  { lvl: 2, name: "Understanding", desc: "Explain ideas or concepts (Classify, describe, discuss)." },
-                  { lvl: 1, name: "Remembering", desc: "Recall facts and basic concepts (Define, duplicate, list)." },
+                  { lvl: 6, name: "Creating", desc: "Design, Assemble, Construct" },
+                  { lvl: 5, name: "Evaluating", desc: "Argue, Defend, Judge" },
+                  { lvl: 4, name: "Analyzing", desc: "Differentiate, Organize" },
+                  { lvl: 3, name: "Applying", desc: "Execute, Solve, Use" },
+                  { lvl: 2, name: "Understanding", desc: "Classify, Describe" },
+                  { lvl: 1, name: "Remembering", desc: "Define, List, Recall" },
                 ].map((level) => (
-                  <div key={level.lvl} className="border-l-4 border-indigo-500 pl-4 py-1">
-                    <h4 className="font-bold text-indigo-900">{level.lvl}. {level.name}</h4>
-                    <p className="text-sm text-gray-600">{level.desc}</p>
+                  <div key={level.lvl} className="group flex items-center gap-6 p-4 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <div className={`text-sm font-bold w-8 h-8 rounded-lg flex items-center justify-center ${level.lvl > 3 ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500'}`}>0{level.lvl}</div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-sm uppercase tracking-wide mb-1 group-hover:text-indigo-700 transition-colors">{level.name}</h4>
+                      <p className="text-sm text-slate-500">{level.desc}</p>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <ContentBlock title="Writing Effective Objectives">
-              <p className="mb-4">
-                Verb choice is critical. The verb determines the cognitive level of the task.
-              </p>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-red-50 p-4 rounded border border-red-100">
-                  <h4 className="font-bold text-red-800 mb-2">Avoid Vague Verbs</h4>
-                  <ul className="list-disc pl-5 text-sm text-red-700">
-                    <li>Understand</li>
-                    <li>Learn</li>
-                    <li>Know</li>
-                    <li>Appreciate</li>
+            <ContentCard title="Verbs Matter">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="bg-red-50/50 p-8 rounded-2xl border border-red-100">
+                  <h4 className="font-bold text-red-900 mb-6 pb-4 border-b border-red-100 flex items-center gap-2">
+                    <X size={18} />
+                    Avoid (Vague)
+                  </h4>
+                  <ul className="text-red-700/70 space-y-3 font-medium">
+                    {['Understand', 'Learn', 'Know', 'Appreciate'].map(v => (
+                      <li key={v} className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-300"></span>
+                        {v}
+                      </li>
+                    ))}
                   </ul>
                 </div>
-                <div className="bg-green-50 p-4 rounded border border-green-100">
-                  <h4 className="font-bold text-green-800 mb-2">Use Measurable Verbs</h4>
-                  <ul className="list-disc pl-5 text-sm text-green-700">
-                    <li>Summarize (Understand)</li>
-                    <li>Calculate (Apply)</li>
-                    <li>Differentiate (Analyze)</li>
-                    <li>Design (Create)</li>
-                  </ul>
-                </div>
-              </div>
-            </ContentBlock>
 
-            <div className="bg-indigo-50 p-6 rounded-xl flex items-center justify-between flex-wrap gap-4 mt-8">
-              <div>
-                <h3 className="font-bold text-lg text-indigo-900">Need the right words?</h3>
-                <p className="text-indigo-700">Get the full table of Bloom's Taxonomy Verbs.</p>
+                <div className="bg-emerald-50/50 p-8 rounded-2xl border border-emerald-100">
+                  <h4 className="font-bold text-emerald-900 mb-6 pb-4 border-b border-emerald-100 flex items-center gap-2">
+                    <CheckCircle size={18} />
+                    Use (Measurable)
+                  </h4>
+                  <ul className="text-emerald-800 space-y-3 font-bold">
+                    {['Summarize', 'Calculate', 'Differentiate', 'Design'].map(v => (
+                      <li key={v} className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        {v}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-              <DownloadButton fileName="Blooms_Verbs.pdf" label="Download Verb Table" />
+            </ContentCard>
+
+            <div className="mt-16 text-center">
+              <DownloadButton fileName="Blooms_Verbs.pdf" label="Download Verb Guide" />
             </div>
           </div>
         );
@@ -339,76 +381,65 @@ const App = () => {
       case 'digital':
         return (
           <div className="max-w-4xl mx-auto animate-fadeIn">
-            <SectionHeader 
-              title="Digital Pedagogy" 
-              subtitle="Rethinking learning goals and interactions in a digital world."
-              icon={Monitor}
-            />
+            <SectionHero title="Digital Pedagogy" subtitle="Rethinking learning for the connected world." icon={Monitor} />
 
-            <ContentBlock>
-              <p>
-                Digital pedagogy is not just about using technology to teach; it's about critically examining how technologies reshape learning. It shifts the focus from teacher-centered instruction to student-centered exploration, collaboration, and autonomy.
+            <ContentCard>
+              <p className="text-xl leading-relaxed">
+                Digital pedagogy isn't just digitizing worksheets. It's about shifting the <strong className="text-indigo-600">locus of control</strong>
+                from teacher-as-broadcaster to teacher-as-designer.
               </p>
-            </ContentBlock>
+            </ContentCard>
 
-            <ContentBlock title="Traditional vs. Digital Pedagogy">
-              <p className="mb-6">
-                The shift involves fundamental differences in the role of the teacher, the nature of communication, and the flexibility of learning.
-              </p>
-              
-              <Figure 
-                src="image_1d2200.jpg" 
-                alt="Comparison Table: Traditional vs Digital Pedagogy" 
-                label="Figure 4: Key Differences in Pedagogical Approaches"
-              />
-
-              <div className="grid md:grid-cols-2 gap-6 mt-8">
-                <div className="bg-gray-100 p-6 rounded-lg">
-                  <h3 className="font-bold text-gray-700 mb-4 border-b border-gray-300 pb-2">Traditional</h3>
-                  <ul className="space-y-3 text-sm text-gray-600">
-                    <li><strong>Focus:</strong> Teacher activity & content delivery.</li>
-                    <li><strong>Role:</strong> Transmitter of knowledge.</li>
-                    <li><strong>Interaction:</strong> One-way, passive reception.</li>
-                    <li><strong>Motivation:</strong> Extrinsic, competitive.</li>
-                  </ul>
+            <div className="my-20">
+              <h3 className="text-lg font-bold text-slate-900 mb-8 uppercase tracking-widest text-center">The Pedagogical Shift
+              </h3>
+              <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100">
+                <div className="grid grid-cols-3 bg-slate-50 border-b border-slate-100">
+                  <div className="p-6 font-bold text-slate-400 text-xs uppercase tracking-wider">Aspect</div>
+                  <div className="p-6 font-bold text-slate-400 text-xs uppercase tracking-wider text-center">Traditional</div>
+                  <div className="p-6 font-bold text-indigo-600 text-xs uppercase tracking-wider text-center bg-indigo-50/50">Digital</div>
                 </div>
-                <div className="bg-blue-50 p-6 rounded-lg">
-                  <h3 className="font-bold text-blue-700 mb-4 border-b border-blue-200 pb-2">Digital</h3>
-                  <ul className="space-y-3 text-sm text-gray-700">
-                    <li><strong>Focus:</strong> Student learning & active construction.</li>
-                    <li><strong>Role:</strong> Facilitator, mentor, designer.</li>
-                    <li><strong>Interaction:</strong> Multi-directional, collaborative.</li>
-                    <li><strong>Motivation:</strong> Intrinsic, autonomy-driven.</li>
-                  </ul>
+
+                <div className="divide-y divide-slate-50">
+                  {[
+                    { aspect: 'Center', trad: 'Teacher', dig: 'Student' },
+                    { aspect: 'Role', trad: 'Transmitter', dig: 'Facilitator' },
+                    { aspect: 'Motivation', trad: 'Grades', dig: 'Autonomy' }
+                  ].map((row, i) => (
+                    <div key={i} className="grid grid-cols-3 hover:bg-slate-50/50 transition-colors">
+                      <div className="p-6 text-sm font-bold text-slate-700">{row.aspect}</div>
+                      <div className="p-6 text-sm text-slate-500 text-center">{row.trad}</div>
+                      <div className="p-6 text-sm font-bold text-indigo-700 text-center bg-indigo-50/10">{row.dig}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </ContentBlock>
+            </div>
 
-            <ContentBlock title="Tools for the Modern Educator">
-               <p className="mb-6">
-                A wide range of digital instruments supports this pedagogical shift, moving from static materials to interactive, global resources.
-              </p>
-              <Figure 
-                src="image_1d21e8.jpg" 
-                alt="Comparison Table: Traditional Instruments vs Digital Tools" 
-                label="Figure 5: Evolution of Educational Tools"
-              />
+            <div className="hidden">
+              <Figure src="image_1d2200.jpg" alt="Comparison Table" label="Figure 4" />
+            </div>
 
-              <div className="mt-8 space-y-4">
-                 {[
-                   { cat: "LMS & Organization", tools: "Google Classroom, Canvas, Teams", purpose: "Structure lessons and monitor progress." },
-                   { cat: "Content Creation", tools: "Canva, Genially, Adobe Express", purpose: "Design visually rich materials." },
-                   { cat: "Collaboration", tools: "Padlet, Miro, Zoom", purpose: "Brainstorming and peer interaction." },
-                   { cat: "Assessment", tools: "Kahoot, Quizizz, EdPuzzle", purpose: "Instant feedback and gamification." },
-                 ].map((tool, i) => (
-                   <div key={i} className="flex flex-col md:flex-row md:items-center bg-white border border-gray-100 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                     <div className="md:w-1/4 font-bold text-blue-600">{tool.cat}</div>
-                     <div className="md:w-1/3 font-medium text-gray-800">{tool.tools}</div>
-                     <div className="md:w-5/12 text-sm text-gray-500">{tool.purpose}</div>
-                   </div>
-                 ))}
+            <ContentCard title="Toolkit">
+              <div className="grid md:grid-cols-2 gap-6">
+                {[
+                  { cat: "Management", tools: "Google Classroom, Canvas", icon: Layout },
+                  { cat: "Creation", tools: "Canva, Genially, Adobe", icon: Sparkles },
+                  { cat: "Collaboration", tools: "Padlet, Miro, Zoom", icon: Brain },
+                  { cat: "Gamification", tools: "Kahoot, Quizizz", icon: Star },
+                ].map((tool, i) => (
+                  <div key={i} className="p-6 border border-slate-100 rounded-2xl hover:bg-white hover:shadow-lg hover:shadow-indigo-100/40 hover:border-indigo-100 transition-all duration-300 group bg-slate-50/50">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 bg-white rounded-lg text-indigo-600 shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        <tool.icon size={18} />
+                      </div>
+                      <h4 className="font-bold text-slate-900 text-sm uppercase tracking-wide">{tool.cat}</h4>
+                    </div>
+                    <p className="text-slate-500 text-sm pl-11">{tool.tools}</p>
+                  </div>
+                ))}
               </div>
-            </ContentBlock>
+            </ContentCard>
           </div>
         );
 
@@ -418,68 +449,81 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col md:flex-row font-sans text-gray-900">
-      
+    <div
+      className="flex h-screen bg-slate-50 font-sans text-slate-900 overflow-hidden selection:bg-indigo-500 selection:text-white">
+
       {/* Mobile Header */}
-      <div className="md:hidden bg-white border-b p-4 flex justify-between items-center sticky top-0 z-50">
-        <span className="font-bold text-lg text-blue-600">Lesson Design Guide</span>
-        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-          {isMobileMenuOpen ? <X /> : <Menu />}
+      <div
+        className="md:hidden fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/60 z-50 px-6 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+            <Brain size={18} />
+          </div>
+          <span className="font-bold text-lg tracking-tight text-slate-900">Lesson Design</span>
+        </div>
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-slate-700 hover:text-indigo-600 transition-colors p-2 rounded-lg hover:bg-slate-100">
+          {isMobileMenuOpen ?
+            <X size={24} strokeWidth={2} /> :
+            <Menu size={24} strokeWidth={2} />}
         </button>
       </div>
 
-      {/* Sidebar Navigation */}
-      <aside className={`
-        fixed md:sticky top-0 left-0 h-full w-64 bg-gray-900 text-white z-40 transition-transform duration-300
-        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-      `}>
-        <div className="p-6 border-b border-gray-800">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <BookOpen className="text-blue-400"/>
-            Educator's Guide
-          </h2>
+      {/* Sidebar - Desktop */}
+      <aside className={` fixed md:relative top-0 left-0 h-full w-72 bg-white/80 backdrop-blur-xl border-r border-slate-200/60 z-40
+        transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex flex-col shadow-2xl md:shadow-none ${isMobileMenuOpen ? 'translate-x-0'
+          : '-translate-x-full md:translate-x-0'} `}>
+        <div className="p-8 pb-6">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+              <Brain size={24} />
+            </div>
+            <h2 className="text-xl font-bold tracking-tight text-slate-900 leading-none">Educator's<br /><span className="text-indigo-600">Guide</span></h2>
+          </div>
+          <div className="h-px bg-gradient-to-r from-slate-200 to-transparent"></div>
         </div>
-        
-        <nav className="p-4 space-y-2">
-          {[
-            { id: 'home', label: 'Home', icon: Home },
-            { id: 'foundations', label: 'Foundations', icon: Layout },
-            { id: 'udl', label: 'UDL Framework', icon: BookOpen }, // Using BookOpen as a generic icon for UDL if generic accessible icon not available
-            { id: 'bloom', label: "Bloom's Taxonomy", icon: Brain },
-            { id: 'digital', label: 'Digital Pedagogy', icon: Monitor },
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => navigateTo(item.id)}
+
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto py-4">
+          {navItems.map((item) => (
+            <button key={item.id} onClick={() => navigateTo(item.id)}
               className={`
-                w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all
-                ${activeSection === item.id 
-                  ? 'bg-blue-600 text-white font-medium shadow-lg' 
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'}
-              `}
+                w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-200 group relative overflow-hidden
+                ${activeSection === item.id
+                  ? 'text-indigo-600 bg-indigo-50 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}
+                `}
             >
-              <item.icon size={20} />
+              {activeSection === item.id && (
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-600 rounded-l-xl"></div>
+              )}
+              <item.icon size={20} strokeWidth={activeSection === item.id ? 2 : 1.5}
+                className={`${activeSection === item.id ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'
+                  }`} />
               {item.label}
+              {activeSection === item.id && <ChevronRight size={16} className="ml-auto text-indigo-400" />}
             </button>
           ))}
         </nav>
 
-        <div className="absolute bottom-0 w-full p-6 border-t border-gray-800 text-xs text-gray-500">
-          © 2025 Educator Resources<br/>
-          Designed for Teachers
+        <div className="p-6 m-4 bg-slate-50 rounded-2xl border border-slate-100">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status</span>
+          </div>
+          <p className="text-xs text-slate-500 font-medium">v2.1 Premium Edition</p>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-6 md:p-12 overflow-y-auto bg-white min-h-screen">
-        {renderContent()}
+      <main className="flex-1 h-full overflow-y-auto relative scroll-smooth bg-slate-50/50">
+        <div className={`max-w-7xl mx-auto w-full p-6 md:p-12 md:pb-24 pt-24 md:pt-12 transition-all duration-700 ease-out ${isVisible
+          ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} `}>
+          {renderContent()}
+        </div>
       </main>
 
       {/* Overlay for mobile */}
       {isMobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
+        <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-30 md:hidden" onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
     </div>
